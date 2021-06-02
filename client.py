@@ -1,6 +1,11 @@
 # Patrick Stumbaugh
 # Project 4 - Client/Server Chat
 
+# NOTE - Must use Python3.
+# To start program, start the server.py program first.
+# Once that is running and awaiting messages, start this client program by entering:
+# python3 client.py
+
 # --------CLIENT---------
 
 import time, socket, sys

@@ -1,6 +1,10 @@
 # Patrick Stumbaugh
 # Project 4 - Client/Server Chat
 
+# NOTE - Must use Python3.
+# To start program, start this server first by entering in command line:
+# python3 server.py
+
 # --------SERVER---------
 
 import time, socket, sys
