@@ -4,6 +4,7 @@
 # NOTE - Must use Python3.
 # To start program, start this server first by entering in command line:
 # python3 server.py
+# The client program will send the first message
 
 # --------SERVER---------
 
