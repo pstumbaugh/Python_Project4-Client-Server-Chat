@@ -7,10 +7,11 @@
 
 # --------SERVER---------
 
-import time, socket, sys
+import socket
 
+# setup socket
 serverSocket = socket.socket()
-ipAddress = socket.gethostbyname("234")
+ipAddress = socket.gethostbyname("localhost")
 # if using something other than "localhost" for the host:
 # hostInformation = socket.gethostname()
 # ipAddress = socket.gethostbyname(hostInformation)
@@ -22,15 +23,35 @@ print("Server listening on localhost, port: %s" % port)
 # set socket re-use option
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
+# connect (bind) and listen for outside connections (only 1 allowed for this program)
 serverSocket.bind(("", port))
+serverSocket.listen(1)  # waits here until connection is requested
 
-serverSocket.listen(1)
-
+# new connection requested, accept the connection request
 conn, connInfo = serverSocket.accept()
 print("Connected by ", connInfo)
 
+firstMessage = True
+print("Waiting for message...")
+
 while True:
-    message = (conn.recv(1024)).decode()
-    print("Client: ", message)
-    message = input("> ")
-    conn.send(message.encode())
+    # GET MESSAGE FROM CLIENT:
+    messageReceived = (conn.recv(1024)).decode()
+    if messageReceived == "/q":  # if the client wants to close the chat
+        conn.close()
+        break
+    print("CLIENT: ", messageReceived)
+    if firstMessage == True:  # prompts for first message from server back to client
+        print("Type /q to quit")
+        print("Enter message to send...")
+        firstMessage = False
+
+    # SEND A MESSAGE TO THE CLIENT:
+    messageToSend = input("> ")
+    if messageToSend == "/q":  # if the server wants to close the chat
+        conn.send(
+            messageToSend.encode()
+        )  # send the message so the client gets the close reequest too
+        conn.close()
+        break
+    conn.send(messageToSend.encode())
