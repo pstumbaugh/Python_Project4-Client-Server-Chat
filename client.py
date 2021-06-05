@@ -10,17 +10,17 @@
 
 import time, socket, sys
 
-socket_server = socket.socket()
+clientSocket = socket.socket()
 server_host = socket.gethostname()
 ip = socket.gethostbyname(server_host)
 port = 8080
 
 print("This is your IP address: ", ip)
 
-socket_server.connect(("", port))
+clientSocket.connect(("", port))
 
 while True:
-    message = (socket_server.recv(1024)).decode()
-    print("SERVER: ", message)
-    message = input("Me : ")
-    socket_server.send(message.encode())
+    message = input("> ")
+    clientSocket.send(message.encode())
+    message = clientSocket.recv(1024).decode()
+    print("CLIENT: ", message)

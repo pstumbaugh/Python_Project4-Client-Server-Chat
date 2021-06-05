@@ -9,24 +9,24 @@
 
 import time, socket, sys
 
-new_socket = socket.socket()
+serverSocket = socket.socket()
 host_name = socket.gethostname()
 s_ip = socket.gethostbyname(host_name)
 
 port = 8080
 
-new_socket.bind(("", port))
+# set socket re-use option
+serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+serverSocket.bind(("", port))
 print("This is your IP: ", s_ip)
 
-new_socket.listen(1)
+serverSocket.listen(1)
 
-
-conn, add = new_socket.accept()
-
+conn, add = serverSocket.accept()
 
 while True:
-    message = input("Me : ")
+    message = (conn.recv(1024)).decode()
+    print("Client: ", message)
+    message = input("> ")
     conn.send(message.encode())
-    message = conn.recv(1024)
-    message = message.decode()
-    print("CLIENT: ", message)
