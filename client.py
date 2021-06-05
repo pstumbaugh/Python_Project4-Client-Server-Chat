@@ -11,13 +11,15 @@
 import time, socket, sys
 
 clientSocket = socket.socket()
-server_host = socket.gethostname()
-ip = socket.gethostbyname(server_host)
-port = 8080
+hostInformation = socket.gethostname()
+ipAddress = socket.gethostbyname(hostInformation)
 
-print("This is your IP address: ", ip)
+# port information - must match server port number
+port = 6789
 
 clientSocket.connect(("", port))
+
+print("Connected to localhost on port:", port)
 
 while True:
     message = input("> ")
