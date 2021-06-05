@@ -39,7 +39,7 @@ while True:
     # GET MESSAGE FROM CLIENT:
     messageReceived = (conn.recv(1024)).decode()
     if messageReceived == "/q":  # if the client wants to close the chat
-        conn.close()
+        serverSocket.close()
         break
     print("CLIENT: ", messageReceived)
     if firstMessage == True:  # prompts for first message from server back to client
@@ -53,6 +53,6 @@ while True:
         conn.send(
             messageToSend.encode()
         )  # send the message so the client gets the close reequest too
-        conn.close()
+        serverSocket.close()
         break
     conn.send(messageToSend.encode())
