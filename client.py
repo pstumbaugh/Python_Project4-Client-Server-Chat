@@ -13,6 +13,13 @@
 
 import socket
 
+# takes a message user is wanting to send, adds in the size and delimiter to front of message
+def getMessage(messageToSend):
+    size = len(messageToSend)
+    message = str(size) + delim + messageToSend
+    return message
+
+
 # setup socket
 clientSocket = socket.socket()
 hostInformation = socket.gethostname()
@@ -27,6 +34,9 @@ port = 6789
 # connect to the port the server is using
 clientSocket.connect(("", port))
 
+delim = "~$"
+errorFlag = False
+
 # print info about connection:
 print("Connected to localhost on port:", port)
 
@@ -35,19 +45,39 @@ print("Type /q to quit")
 print("Enter message to send...")
 
 while True:
-    # SEND A MESSAGE TO THE SERVER:
-    messageToSend = input("> ")
-    if messageToSend == "/q":  # if the client wants to close the chat
-        clientSocket.send(
-            messageToSend.encode()
-        )  # send the message so the server gets the close reequest too
-        clientSocket.close()
-        break
-    clientSocket.send(messageToSend.encode())
+    if errorFlag == False:
+        # SEND A MESSAGE TO THE SERVER:
+        messageToSend = input("> ")
+        if messageToSend == "/q":  # if the client wants to close the chat
+            message = getMessage(messageToSend)
+            print(message)
+            clientSocket.send(
+                message.encode()
+            )  # send the message so the server gets the close reequest too
+            clientSocket.close()
+            break
+        else:
+            message = getMessage(messageToSend)
+            clientSocket.send(message.encode())
 
     # GET A MESSAGE FROM THE SERVER:
     messageReceived = clientSocket.recv(1024).decode()
-    if messageReceived == "/q":  # if the client wants to close the chat
-        clientSocket.close()
-        break
-    print("SERVER: ", messageReceived)
+
+    delimPosition = messageReceived.find(delim)
+    receiveSize = messageReceived[:delimPosition]
+    messageReceived = messageReceived[delimPosition + 2 :]
+
+    if int(receiveSize) == 0:
+        messageToSend = (
+            "Sorry, there was an error or message was blank. Please try again."
+        )
+        size = len(messageToSend)
+        message = str(size) + delim + messageToSend
+        clientSocket.send(message.encode())
+        errorFlag = True
+    else:
+        if messageReceived == "/q":  # if the client wants to close the chat
+            clientSocket.close()
+            break
+        print("SERVER: ", messageReceived)
+        errorFlag = False

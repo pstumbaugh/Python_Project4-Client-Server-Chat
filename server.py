@@ -12,6 +12,13 @@
 
 import socket
 
+
+def getMessage(messageToSend):
+    size = len(messageToSend)
+    message = str(size) + delim + messageToSend
+    return message
+
+
 # setup socket
 serverSocket = socket.socket()
 ipAddress = socket.gethostbyname("localhost")
@@ -34,27 +41,47 @@ serverSocket.listen(1)  # waits here until connection is requested
 conn, connInfo = serverSocket.accept()
 print("Connected by ", connInfo)
 
+delim = "~$"
+
 firstMessage = True
 print("Waiting for message...")
 
 while True:
     # GET MESSAGE FROM CLIENT:
     messageReceived = (conn.recv(1024)).decode()
-    if messageReceived == "/q":  # if the client wants to close the chat
-        serverSocket.close()
-        break
-    print("CLIENT: ", messageReceived)
-    if firstMessage == True:  # prompts for first message from server back to client
-        print("Type /q to quit")
-        print("Enter message to send...")
-        firstMessage = False
 
-    # SEND A MESSAGE TO THE CLIENT:
-    messageToSend = input("> ")
-    if messageToSend == "/q":  # if the server wants to close the chat
-        conn.send(
-            messageToSend.encode()
-        )  # send the message so the client gets the close reequest too
-        serverSocket.close()
-        break
-    conn.send(messageToSend.encode())
+    delimPosition = messageReceived.find(delim)
+    receiveSize = messageReceived[:delimPosition]
+    messageReceived = messageReceived[delimPosition + 2 :]
+
+    if int(receiveSize) == 0:
+        messageToSend = (
+            "Sorry, there was an error or message was blank. Please try again."
+        )
+
+        size = len(messageToSend)
+        message = str(size) + delim + messageToSend
+        conn.send(message.encode())
+
+    else:
+        if messageReceived == "/q":  # if the client wants to close the chat
+            serverSocket.close()
+            break
+        print("CLIENT: ", messageReceived)
+        if firstMessage == True:  # prompts for first message from server back to client
+            print("Type /q to quit")
+            print("Enter message to send...")
+            firstMessage = False
+
+        # SEND A MESSAGE TO THE CLIENT:
+        messageToSend = input("> ")
+        if messageToSend == "/q":  # if the server wants to close the chat
+            message = getMessage(messageToSend)
+            conn.send(
+                message.encode()
+            )  # send the message so the client gets the close reequest too
+            serverSocket.close()
+            break
+        else:
+            message = getMessage(messageToSend)
+            conn.send(message.encode())
